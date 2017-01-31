@@ -1,0 +1,148 @@
+<html>
+    <head>
+        <script src="https://code.jquery.com/jquery-3.1.1.js"></script>
+        <style>
+            body > *:not(script) {
+                display: block;
+                margin: auto;
+                text-align: center;
+            }
+            body > pre, pre {
+                text-align: left;
+                white-space: pre-wrap;
+                word-wrap: normal;
+            }
+            th {
+                text-align: left;
+            }
+            th::after {
+                content: ":";
+            }
+        </style>
+    </head>
+    <body>
+        <div id="command" style="text-align: center">Error.</div>
+        <svg id="display" width="320" height="20" style="display: block; margin: auto; background-color: #eee">
+            <path stroke="red" stroke-width="2" id="center" d="M 160 0 V 10"/>
+            <path stroke="orange" stroke-width="2" id="average"/>
+        </svg>
+        <table>
+            <tbody id="stats">
+                <tr><th>Displacement</th><td><span id="distFromCenter"></span>px</td><td><span id="distFromCenterIn"></span>in</td></tr>
+                <tr><th>Area/dist</th><td><span id="avgArea"></span>px2</td><td><span id="distance"></span>in</td></tr>
+                <tr><th>Area Ratio</th><td><span id="areaRatio"></span></td></tr>
+                <tr><th>px/in</th><td><span id="pxPerIn"></span></td></tr>
+            </tbody>
+        </table>
+        <table>
+            <tbody id="list">
+                <tr id="area"><th>area</th></tr>
+                <tr id="centerY"><th>centerY</th></tr>
+                <tr id="centerX"><th>centerX</th></tr>
+                <tr id="width"><th>width</th></tr>
+                <tr id="solidity"><th>solidity</th></tr>
+                <tr id="height"><th>height</th></tr>
+            </tbody>
+        </table>
+        <div>Running at <span id="fps"></span>fps, <span id="time"></span>ms processing</div>
+        <pre id="raw"></pre>
+        <script>
+            $('#command').text("HELLO");
+            var frames = 0, time = 0;
+            var display = document.getElementById('display');
+            var URI = display.namespaceURI;
+            console.log(display);
+            var avg = function(v, weights) {
+                var r = 0, w = 0;
+                for (let i=0; i<v.length; i++) {
+                    let e = v[i];
+                    let w_i = weights && weights[i] || 1;
+                    r += w_i*e;
+                    w += w_i;
+                }
+                return r / w;
+            };
+            var run = function() {
+                $.get('http://localhost:2084/GRIP/data?TargetContours').done(function(data) {
+                    var start = performance.now();
+                    var contours = data.TargetContours;
+                    $('#raw').text(JSON.stringify(contours));
+                    var {centerX, area} = contours;
+                    var average = avg(centerX, area);
+                    var distFromCenter = 320/2 - average;
+                    var avgArea = avg(area);
+                    var areaRatio = "";
+                    if (area.length == 2) {
+                        var l = area[0];
+                        var r = area[1];
+                        if (centerX[1] < centerX[0]) {
+                            var [l,r] = [r,l];
+                        }
+                        if (l > r) {
+                            areaRatio = (l/r+'').substr(0,3)+':';
+                        } else if (l < r) {
+                            areaRatio = ':'+(l/r+'').substr(0,3);
+                        }
+                    }
+                    var pxPerIn = Math.sqrt(avgArea/10);
+                    var distFromCenterIn = distFromCenter / pxPerIn;
+                    var distance = 1023/Math.sqrt(avgArea);
+                    var command = "Stop!";
+                    if (distFromCenter > 50) {
+                        command = "GO LEFT";
+                    } else if (distFromCenter > 2) {
+                        command = "Go left";
+                    } else if (distFromCenter < -50) {
+                        command = "GO RIGHT";
+                    } else if (distFromCenter < -2) {
+                        command = "Go right";
+                    }
+                    $('#command').text(command);
+                    var params = {
+                        distFromCenter,
+                        distFromCenterIn,
+                        avgArea,
+                        areaRatio,
+                        pxPerIn,
+                        distance,
+                    };
+                    for (let p in params) {
+                        document.getElementById(p).textContent = (params[p]+'').substr(0,7);
+                    }
+                    $('#list td').remove();
+                    for (let metric in contours) {
+                        var row = $('#'+metric);
+                        var measurements = contours[metric];
+                        for (let m of measurements) {
+                            row.append(('<td>'+m).substr(0,10));
+                        }
+                    }
+                    for (let i=display.children.length; i<centerX.length+2; i++) {
+                        let path = document.createElementNS(URI, "path");
+                        path.setAttributeNS(null, "stroke", "limegreen");
+                        path.setAttributeNS(null, "stroke-width", "2");
+                        display.appendChild(path);
+                    }
+                    for (let i=display.children.length-1; i>=centerX.length+2; i--) {
+                        display.removeChild(display.children[i]);
+                    }
+                    for (let i=0; i<centerX.length; i++) {
+                        let x = centerX[i];
+                        let path = display.children[i+2];
+                        path.setAttributeNS(null, "d", "M "+x+" 0 V 20");
+                    }
+                    display.children[1].setAttributeNS(null, "d", "M "+average+" 10 v 10");
+                    frames++;
+                    setTimeout(run, 1000/60);
+                    time = performance.now() - start;
+                });
+            }
+            setInterval(function() {
+                $('#fps').text(frames);
+                $('#time').text((time+'').substr(0,4));
+                frames = 0;
+            }, 1000);
+            setTimeout(run, 1000);
+        </script>
+    </body>
+</html>
