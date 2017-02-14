@@ -1,0 +1,5 @@
+Current GRIP file is liveroborio4_lowexp.grip. This should pick up the target when the USB Camera is connected to the RoboRIO, the green LED light is on, the target is visible, robot code running, etc. etc. This image should be picked up live by GRIP over the Network, also in the Driver Station.
+
+When GRIP generates code, it should go in VisionBuildSamples\Java\src\main\java\GripGearPipeline.java. (If you do not have this folder, clone from here: https://github.com/Team2530/VisionBuildSamples/tree/GRIPGear.) The generated Java code will be included by the main file there. UNCHECK implementing WPILib VisionPipeline, make sure the namespace is "edu.team2530". (This should be set up in the GRIP file already.)
+
+To build the vision processing program proper, run ```gradlew.bat build``` in VisionBuildSamples\Java. The cd into output\ and run runCameraVision.bat. This should pick up the robot over the network and publish the results of analysis back to the NetworkTables. (What might have been supposed to be working is creating another video stream from Java... not a big deal.)

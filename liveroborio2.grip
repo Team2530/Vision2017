@@ -1,7 +1,7 @@
 <grip:Pipeline>
   <sources>
     <grip:Camera>
-      <property name="deviceNumber" value="2"/>
+      <property name="address" value="http://roboRIO-2530-FRC.local:1181/?action=stream"/>
     </grip:Camera>
   </sources>
   <steps>
@@ -22,19 +22,19 @@
       <grip:Input step="1" socket="0"/>
       <grip:Input step="1" socket="1">
         <value>
-          <double>47.07657602731374</double>
-          <double>92.65445054844773</double>
+          <double>42.3728813559322</double>
+          <double>101.39037433155082</double>
         </value>
       </grip:Input>
       <grip:Input step="1" socket="2">
         <value>
-          <double>180.02879531853785</double>
+          <double>189.2095862789898</double>
           <double>255.0</double>
         </value>
       </grip:Input>
       <grip:Input step="1" socket="3">
         <value>
-          <double>194.49152542372886</double>
+          <double>199.2937853107345</double>
           <double>255.0</double>
         </value>
       </grip:Input>
@@ -43,7 +43,7 @@
     <grip:Step name="Find Contours">
       <grip:Input step="2" socket="0"/>
       <grip:Input step="2" socket="1">
-        <value>false</value>
+        <value>true</value>
       </grip:Input>
       <grip:Output step="2" socket="0" previewed="false"/>
     </grip:Step>
@@ -54,7 +54,7 @@
     <grip:Step name="Filter Contours">
       <grip:Input step="4" socket="0"/>
       <grip:Input step="4" socket="1">
-        <value>50.0</value>
+        <value>150.0</value>
       </grip:Input>
       <grip:Input step="4" socket="2">
         <value>0.0</value>
@@ -87,7 +87,7 @@
         <value>0.2</value>
       </grip:Input>
       <grip:Input step="4" socket="11">
-        <value>1.6</value>
+        <value>1.0</value>
       </grip:Input>
       <grip:Output step="4" socket="0" previewed="true"/>
     </grip:Step>
@@ -142,6 +142,22 @@
   </steps>
   <connections>
     <grip:Connection>
+      <grip:Output step="4" socket="0" previewed="true"/>
+      <grip:Input step="6" socket="0"/>
+    </grip:Connection>
+    <grip:Connection>
+      <grip:Output step="3" socket="0" previewed="false"/>
+      <grip:Input step="4" socket="0"/>
+    </grip:Connection>
+    <grip:Connection>
+      <grip:Output step="4" socket="0" previewed="true"/>
+      <grip:Input step="5" socket="0"/>
+    </grip:Connection>
+    <grip:Connection>
+      <grip:Output source="0" socket="0" previewed="false"/>
+      <grip:Input step="0" socket="0"/>
+    </grip:Connection>
+    <grip:Connection>
       <grip:Output step="0" socket="0" previewed="true"/>
       <grip:Input step="1" socket="0"/>
     </grip:Connection>
@@ -150,24 +166,8 @@
       <grip:Input step="2" socket="0"/>
     </grip:Connection>
     <grip:Connection>
-      <grip:Output source="0" socket="0" previewed="false"/>
-      <grip:Input step="0" socket="0"/>
-    </grip:Connection>
-    <grip:Connection>
-      <grip:Output step="4" socket="0" previewed="true"/>
-      <grip:Input step="6" socket="0"/>
-    </grip:Connection>
-    <grip:Connection>
-      <grip:Output step="4" socket="0" previewed="true"/>
-      <grip:Input step="5" socket="0"/>
-    </grip:Connection>
-    <grip:Connection>
       <grip:Output step="2" socket="0" previewed="false"/>
       <grip:Input step="3" socket="0"/>
-    </grip:Connection>
-    <grip:Connection>
-      <grip:Output step="3" socket="0" previewed="false"/>
-      <grip:Input step="4" socket="0"/>
     </grip:Connection>
   </connections>
   <settings>
@@ -180,11 +180,11 @@
     <deployJvmOptions>-Xmx50m -XX:-OmitStackTraceInFastThrow -XX:+HeapDumpOnOutOfMemoryError -XX:MaxNewSize=16m</deployJvmOptions>
   </settings>
   <codeGenerationSettings>
-    <language>C++</language>
+    <language>Java</language>
     <className>GripGearPipeline</className>
     <implementWpilibPipeline>false</implementWpilibPipeline>
     <saveDir>C:\Users\Nick\Documents\VisionBuildSamples\Java\src\main\java</saveDir>
-    <packageName></packageName>
+    <packageName>edu.team2530</packageName>
     <moduleName>grip</moduleName>
   </codeGenerationSettings>
 </grip:Pipeline>
